@@ -10,6 +10,7 @@
 #include "imfilebrowser.h"
 #include <gl2d/gl2d.h>
 #include <platformTools.h>
+#include <tiledRenderer.h>
 
 struct GamePlayData
 {
@@ -19,7 +20,9 @@ struct GamePlayData
 GamePlayData data;
 
 gl2d::Renderer2D renderer;
-gl2d::Texture spaceTexture;
+gl2d::Texture spaceShipTexture;
+gl2d::Texture backgroundTexture;
+TiledRenderer tiledRenderer;
 
 bool initGame()
 {
@@ -27,9 +30,10 @@ bool initGame()
 	gl2d::init();
 	renderer.create();
 
-	spaceTexture.loadFromFile(RESOURCES_PATH "spaceShip/ships/green.png", true);
+	spaceShipTexture.loadFromFile(RESOURCES_PATH "spaceShip/ships/green.png", true);
+	backgroundTexture.loadFromFile(RESOURCES_PATH "background1.png", true);
 	
-	
+	tiledRenderer.texture = backgroundTexture;
 	return true;
 }
 
@@ -37,7 +41,7 @@ bool initGame()
 
 bool gameLogic(float deltaTime)
 {
-#pragma region init stuff
+#pragma region Init Window
 	int w = 0; int h = 0;
 	w = platform::getFrameBufferSizeX(); //window w
 	h = platform::getFrameBufferSizeY(); //window h
@@ -79,8 +83,22 @@ bool gameLogic(float deltaTime)
 
 #pragma endregion
 
+#pragma region Render Background
 
-	renderer.renderRectangle({ data.playerPos , 200, 200}, spaceTexture);
+	tiledRenderer.render(renderer);
+
+#pragma endregion
+
+#pragma region Camera Follow
+	renderer.currentCamera.zoom = 0.5;
+	renderer.currentCamera.follow(data.playerPos, deltaTime * 450, 10, 50, w, h);
+
+#pragma endregion
+
+
+
+
+	renderer.renderRectangle({ data.playerPos , 200, 200}, spaceShipTexture);
 
 
 	renderer.flush();
