@@ -52,37 +52,25 @@ bool gameLogic(float deltaTime)
 
 	glm::vec2 move = {};
 
-	if (
-		platform::isButtonHeld(platform::Button::W) ||
-		platform::isButtonHeld(platform::Button::Up)
-		)
+	if (platform::isButtonHeld(platform::Button::W) ||platform::isButtonHeld(platform::Button::Up))
 	{
 		move.y = -1;
 	}
-	if (
-		platform::isButtonHeld(platform::Button::S) ||
-		platform::isButtonHeld(platform::Button::Down)
-		)
+	if (platform::isButtonHeld(platform::Button::S) ||platform::isButtonHeld(platform::Button::Down))
 	{
 		move.y = 1;
 	}
-	if (
-		platform::isButtonHeld(platform::Button::A) ||
-		platform::isButtonHeld(platform::Button::Left)
-		)
+	if (platform::isButtonHeld(platform::Button::A) ||platform::isButtonHeld(platform::Button::Left))
 	{
 		move.x = -1;
 	}
-	if (
-		platform::isButtonHeld(platform::Button::D) ||
-		platform::isButtonHeld(platform::Button::Right)
-		)
+	if (platform::isButtonHeld(platform::Button::D) ||platform::isButtonHeld(platform::Button::Right))
 	{
 		move.x = 1;
 	}
 
 
-	if (move.x  = 0 || move.y != 0)
+	if (move.x  != 0 || move.y != 0)
 	{
 		move = glm::normalize(move);
 		move *= deltaTime * 200;
@@ -92,7 +80,7 @@ bool gameLogic(float deltaTime)
 #pragma endregion
 
 
-	renderer.renderRectangle({ data.playerPos , 100, 100}, spaceTexture);
+	renderer.renderRectangle({ data.playerPos , 200, 200}, spaceTexture);
 
 
 	renderer.flush();
