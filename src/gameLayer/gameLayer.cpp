@@ -17,7 +17,7 @@ struct GamePlayData
 	glm::vec2 playerPos = { 100, 100 };
 };
 
-constexpr int BACKGROUNDS = 3;
+constexpr int BACKGROUNDS = 4;
 
 GamePlayData data;
 
@@ -36,14 +36,17 @@ bool initGame()
 	backgroundTexture[0].loadFromFile(RESOURCES_PATH "background1.png", true);
 	backgroundTexture[1].loadFromFile(RESOURCES_PATH "background2.png", true);
 	backgroundTexture[2].loadFromFile(RESOURCES_PATH "background3.png", true);
+	backgroundTexture[3].loadFromFile(RESOURCES_PATH "background4.png", true);
 
 	tiledRenderer[0].texture = backgroundTexture[0];
 	tiledRenderer[1].texture = backgroundTexture[1];
 	tiledRenderer[2].texture = backgroundTexture[2];
+	tiledRenderer[3].texture = backgroundTexture[3];
 
 	tiledRenderer[0].paralaxStrength = 0;
-	tiledRenderer[1].paralaxStrength = 0.4;
-	tiledRenderer[2].paralaxStrength = 0.7;
+	tiledRenderer[1].paralaxStrength = 0.2;
+	tiledRenderer[2].paralaxStrength = 0.4;
+	tiledRenderer[3].paralaxStrength = 0.7;
 	return true;
 }
 
@@ -103,16 +106,37 @@ bool gameLogic(float deltaTime)
 
 #pragma endregion
 
-#pragma region Camera Follow
-	renderer.currentCamera.zoom = 0.5;
-	renderer.currentCamera.follow(data.playerPos, deltaTime * 450, 10, 50, w, h);
+#pragma region Mouse Position
+
+	glm::vec2 mousePos = platform::getRelMousePosition();
+	glm::vec2 screenCenter(w / 2.f, h / 2.f);
+	glm::vec2 mouseDirection = mousePos - screenCenter;
+
+	if (glm::length(mouseDirection) == 0.f)
+	{
+		mouseDirection = { 1,0 };
+	}
+	else
+	{
+		mouseDirection = normalize(mouseDirection);
+	}
+	float spaceShipAngle = atan2(mouseDirection.y, -mouseDirection.x);
 
 #pragma endregion
 
 
+#pragma region Camera Follow
+	renderer.currentCamera.zoom = 0.5;
+	renderer.currentCamera.follow(data.playerPos, deltaTime * 1450, 1, 50, w, h);
+
+#pragma endregion
+
+#pragma region Render Ship
+	constexpr float shipSize = 250.f;
+	renderer.renderRectangle({ data.playerPos - glm::vec2(shipSize / 2,shipSize / 2), shipSize,shipSize }, spaceShipTexture,Colors_White, {}, glm::degrees(spaceShipAngle) + 90.f);
+#pragma endregion
 
 
-	renderer.renderRectangle({ data.playerPos , 200, 200}, spaceShipTexture);
 
 
 	renderer.flush();
