@@ -17,12 +17,14 @@ struct GamePlayData
 	glm::vec2 playerPos = { 100, 100 };
 };
 
+constexpr int BACKGROUNDS = 3;
+
 GamePlayData data;
 
 gl2d::Renderer2D renderer;
 gl2d::Texture spaceShipTexture;
-gl2d::Texture backgroundTexture;
-TiledRenderer tiledRenderer;
+gl2d::Texture backgroundTexture[BACKGROUNDS];
+TiledRenderer tiledRenderer[BACKGROUNDS];
 
 bool initGame()
 {
@@ -31,9 +33,17 @@ bool initGame()
 	renderer.create();
 
 	spaceShipTexture.loadFromFile(RESOURCES_PATH "spaceShip/ships/green.png", true);
-	backgroundTexture.loadFromFile(RESOURCES_PATH "background1.png", true);
-	
-	tiledRenderer.texture = backgroundTexture;
+	backgroundTexture[0].loadFromFile(RESOURCES_PATH "background1.png", true);
+	backgroundTexture[1].loadFromFile(RESOURCES_PATH "background2.png", true);
+	backgroundTexture[2].loadFromFile(RESOURCES_PATH "background3.png", true);
+
+	tiledRenderer[0].texture = backgroundTexture[0];
+	tiledRenderer[1].texture = backgroundTexture[1];
+	tiledRenderer[2].texture = backgroundTexture[2];
+
+	tiledRenderer[0].paralaxStrength = 0;
+	tiledRenderer[1].paralaxStrength = 0.4;
+	tiledRenderer[2].paralaxStrength = 0.7;
 	return true;
 }
 
@@ -77,7 +87,7 @@ bool gameLogic(float deltaTime)
 	if (move.x  != 0 || move.y != 0)
 	{
 		move = glm::normalize(move);
-		move *= deltaTime * 200;
+		move *= deltaTime * 2000;
 		data.playerPos += move;
 	}
 
@@ -85,7 +95,11 @@ bool gameLogic(float deltaTime)
 
 #pragma region Render Background
 
-	tiledRenderer.render(renderer);
+	for (int i = 0; i < BACKGROUNDS; i++)
+	{
+		tiledRenderer[i].render(renderer);
+	}
+
 
 #pragma endregion
 
