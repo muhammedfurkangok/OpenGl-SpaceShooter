@@ -11,10 +11,14 @@
 #include <gl2d/gl2d.h>
 #include <platformTools.h>
 #include <tiledRenderer.h>
+#include <vector>
+#include <bullets.h>
 
 struct GamePlayData
 {
 	glm::vec2 playerPos = { 100, 100 };
+
+	std::vector<Bullet> bullets;
 };
 
 constexpr int BACKGROUNDS = 4;
@@ -22,7 +26,13 @@ constexpr int BACKGROUNDS = 4;
 GamePlayData data;
 
 gl2d::Renderer2D renderer;
-gl2d::Texture spaceShipTexture;
+
+gl2d::Texture spaceShipsTexture;
+gl2d::TextureAtlasPadding spaceShipsAtlas;
+
+gl2d::Texture bulletsTexture;
+gl2d::TextureAtlasPadding bulletsTextureAtlas;
+
 gl2d::Texture backgroundTexture[BACKGROUNDS];
 TiledRenderer tiledRenderer[BACKGROUNDS];
 
@@ -32,7 +42,12 @@ bool initGame()
 	gl2d::init();
 	renderer.create();
 
-	spaceShipTexture.loadFromFile(RESOURCES_PATH "spaceShip/ships/green.png", true);
+	spaceShipsTexture.loadFromFileWithPixelPadding(RESOURCES_PATH "spaceShip/stitchedFiles/spaceships.png",128, true);
+	spaceShipsAtlas = gl2d::TextureAtlasPadding(5, 2, spaceShipsTexture.GetSize().x, spaceShipsTexture.GetSize().y);
+
+	bulletsTexture.loadFromFileWithPixelPadding(RESOURCES_PATH "spaceShip/stitchedFiles/projectiles.png", 500, true);
+	bulletsTextureAtlas = gl2d::TextureAtlasPadding(3, 2, bulletsTexture.GetSize().x, bulletsTexture.GetSize().y);
+
 	backgroundTexture[0].loadFromFile(RESOURCES_PATH "background1.png", true);
 	backgroundTexture[1].loadFromFile(RESOURCES_PATH "background2.png", true);
 	backgroundTexture[2].loadFromFile(RESOURCES_PATH "background3.png", true);
@@ -124,6 +139,37 @@ bool gameLogic(float deltaTime)
 
 #pragma endregion
 
+#pragma region Handle Bullets
+
+	if (platform::isLMousePressed())
+	{
+
+		Bullet b;
+
+		b.position = data.playerPos;
+		b.fireDirection = mouseDirection;
+
+		data.bullets.push_back(b);
+	}
+
+	for (auto& b : data.bullets)
+	{
+		b.update(deltaTime);
+	}
+
+
+#pragma endregion
+
+#pragma region Render Bullets
+
+
+	for (auto& b : data.bullets)
+	{
+		b.render(renderer, bulletsTexture, bulletsTextureAtlas);
+	}
+
+#pragma endregion
+
 
 #pragma region Camera Follow
 	renderer.currentCamera.zoom = 0.5;
@@ -133,7 +179,8 @@ bool gameLogic(float deltaTime)
 
 #pragma region Render Ship
 	constexpr float shipSize = 250.f;
-	renderer.renderRectangle({ data.playerPos - glm::vec2(shipSize / 2,shipSize / 2), shipSize,shipSize }, spaceShipTexture,Colors_White, {}, glm::degrees(spaceShipAngle) + 90.f);
+	renderer.renderRectangle({ data.playerPos - glm::vec2(shipSize / 2,shipSize / 2), shipSize,shipSize }, 
+		spaceShipsTexture,Colors_White, {}, glm::degrees(spaceShipAngle) + 90.f,spaceShipsAtlas.get(1,0));
 #pragma endregion
 
 
