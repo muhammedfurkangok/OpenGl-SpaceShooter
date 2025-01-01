@@ -152,9 +152,17 @@ bool gameLogic(float deltaTime)
 		data.bullets.push_back(b);
 	}
 
-	for (auto& b : data.bullets)
+	for (int i = 0; i<data.bullets.size(); i++)
 	{
-		b.update(deltaTime);
+
+		if (glm::distance(data.bullets[i].position, data.playerPos) > 5000)
+		{
+			data.bullets.erase(data.bullets.begin() + i);
+			i--;
+			continue;
+		}
+
+		data.bullets[i].update(deltaTime);
 	}
 
 
@@ -170,7 +178,6 @@ bool gameLogic(float deltaTime)
 
 #pragma endregion
 
-
 #pragma region Camera Follow
 	renderer.currentCamera.zoom = 0.5;
 	renderer.currentCamera.follow(data.playerPos, deltaTime * 1450, 1, 50, w, h);
@@ -178,9 +185,11 @@ bool gameLogic(float deltaTime)
 #pragma endregion
 
 #pragma region Render Ship
+
 	constexpr float shipSize = 250.f;
 	renderer.renderRectangle({ data.playerPos - glm::vec2(shipSize / 2,shipSize / 2), shipSize,shipSize }, 
 		spaceShipsTexture,Colors_White, {}, glm::degrees(spaceShipAngle) + 90.f,spaceShipsAtlas.get(1,0));
+
 #pragma endregion
 
 
@@ -190,6 +199,12 @@ bool gameLogic(float deltaTime)
 
 
 	//ImGui::ShowDemoWindow();
+
+	ImGui::Begin("debug");
+
+	ImGui::Text("Bullet Counts %d", (int)data.bullets.size());
+
+	ImGui::End();
 
 
 	return true;
