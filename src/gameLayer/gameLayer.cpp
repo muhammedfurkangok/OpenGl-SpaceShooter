@@ -13,12 +13,15 @@
 #include <tiledRenderer.h>
 #include <vector>
 #include <bullets.h>
+#include <enemy.h>
 
 struct GamePlayData
 {
 	glm::vec2 playerPos = { 100, 100 };
 
 	std::vector<Bullet> bullets;
+
+	std::vector<Enemy> enemies;
 };
 
 constexpr int BACKGROUNDS = 4;
@@ -79,7 +82,6 @@ bool gameLogic(float deltaTime)
 
 	renderer.updateWindowMetrics(w, h);
 #pragma endregion
-
 #pragma region Movement
 
 	glm::vec2 move = {};
@@ -110,7 +112,6 @@ bool gameLogic(float deltaTime)
 	}
 
 #pragma endregion
-
 #pragma region Render Background
 
 	for (int i = 0; i < BACKGROUNDS; i++)
@@ -120,7 +121,6 @@ bool gameLogic(float deltaTime)
 
 
 #pragma endregion
-
 #pragma region Mouse Position
 
 	glm::vec2 mousePos = platform::getRelMousePosition();
@@ -138,7 +138,6 @@ bool gameLogic(float deltaTime)
 	float spaceShipAngle = atan2(mouseDirection.y, -mouseDirection.x);
 
 #pragma endregion
-
 #pragma region Handle Bullets
 
 	if (platform::isLMousePressed())
@@ -167,7 +166,29 @@ bool gameLogic(float deltaTime)
 
 
 #pragma endregion
+#pragma region Camera Follow
+	renderer.currentCamera.zoom = 0.5;
+	renderer.currentCamera.follow(data.playerPos, deltaTime * 1450, 1, 50, w, h);
 
+#pragma endregion
+#pragma region handle enemies
+	for (int i = 0; i < data.enemies.size(); i++)
+	{
+		//todo update enemies
+	}
+#pragma endregion
+#pragma region render enemies
+	for (auto& e : data.enemies)
+	{
+		e.render(renderer, spaceShipsTexture, spaceShipsAtlas);
+	}
+#pragma endregion
+#pragma region Render Ship
+
+	constexpr float shipSize = 250.f;
+	renderSpaceShip(renderer, data.playerPos, shipSize, spaceShipsTexture, spaceShipsAtlas.get(3, 0), mouseDirection);
+
+#pragma endregion
 #pragma region Render Bullets
 
 
@@ -178,23 +199,6 @@ bool gameLogic(float deltaTime)
 
 #pragma endregion
 
-#pragma region Camera Follow
-	renderer.currentCamera.zoom = 0.5;
-	renderer.currentCamera.follow(data.playerPos, deltaTime * 1450, 1, 50, w, h);
-
-#pragma endregion
-
-#pragma region Render Ship
-
-	constexpr float shipSize = 250.f;
-	renderer.renderRectangle({ data.playerPos - glm::vec2(shipSize / 2,shipSize / 2), shipSize,shipSize }, 
-		spaceShipsTexture,Colors_White, {}, glm::degrees(spaceShipAngle) + 90.f,spaceShipsAtlas.get(1,0));
-
-#pragma endregion
-
-
-
-
 	renderer.flush();
 
 
@@ -203,6 +207,13 @@ bool gameLogic(float deltaTime)
 	ImGui::Begin("debug");
 
 	ImGui::Text("Bullet Counts %d", (int)data.bullets.size());
+	ImGui::Text("Enemies count: %d", (int)data.enemies.size());
+	if (ImGui::Button("Spawn enemy"))
+	{
+		Enemy e;
+		e.position = data.playerPos;
+		data.enemies.push_back(e);
+	}
 
 	ImGui::End();
 
