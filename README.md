@@ -3,7 +3,7 @@ This game is a project I made to understand low level c++ and game engines and t
 
 This Projects Im Using;
 -OpenGL
-C++
+-C++
 -GLFW,GLEW..
 
 
