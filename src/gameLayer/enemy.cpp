@@ -53,7 +53,8 @@ bool Enemy::update(float deltaTime, glm::vec2 playerPos)
 	}
 	else
 	{
-		newDirection = deltaTime * turnSpeed * directionToPlayer + viewDirection;
+		newDirection =
+			deltaTime * turnSpeed * directionToPlayer + viewDirection;
 	}
 
 	float length = glm::length(newDirection);
